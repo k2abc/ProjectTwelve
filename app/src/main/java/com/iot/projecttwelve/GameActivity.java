@@ -25,8 +25,10 @@ public class GameActivity extends Activity {
     int R_POW_CNT = 0;  // 붉은색 포로수
     int [] G_POW_LIST;
     int [] R_POW_LIST;
-    int victoryChance = 0; //승리조건
+    int RedVictoryChance = 0; //승리조건
+    int GreenVictoryChance = 0; //승리조건
     int freedom = 0;
+    int powNum = -1;
 
 
     int [][] board;   //게임판 [4][3]배열로 만들어진다. 저장되는 값은 해당 발판에 있는 말의 인덱스
@@ -58,7 +60,7 @@ public class GameActivity extends Activity {
         }
         AlertDialog dialog = createDialogBox();
         dialog.show();
-        victorydialog = victoryBox();
+
 
         //선공 후공을 정한다.
         //내턴이면 ~~~
@@ -105,7 +107,7 @@ public class GameActivity extends Activity {
             for (int j = 6; j <= 10; ++j)
             {
                 if (board[i/3][i%3] == j)
-                    iff[i/3][i%3] = 2;
+                    iff[i/3][i%3] = -1;
             }
         }
     }
@@ -117,8 +119,8 @@ public class GameActivity extends Activity {
                 {3, 5, 4}
         };
         iff = new int[][] {
-                {2, 2, 2},
-                {0, 2, 0},
+                {-1, -1, -1},
+                {0, -1, 0},
                 {0, 1, 0},
                 {1, 1, 1}
         };
@@ -241,6 +243,11 @@ public class GameActivity extends Activity {
 //                for (int k = 1; k <= 5; ++k)
 //                    if(board[i][j] == k) iff[i][j] = 1;
             }
+        for (int i = 0; i < 6; ++i) {
+            G_POW[i].setImageDrawable(value[G_POW_LIST[i]]);
+            R_POW[i].setImageDrawable(value[R_POW_LIST[i]]);
+        }
+
     }
 
     private AlertDialog createDialogBox() {
@@ -251,16 +258,19 @@ public class GameActivity extends Activity {
         builder.setPositiveButton("선공", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                order = 2;  //상대턴인 상태로 오더링을 부르면 내 턴이 되면서 1턴이 된다.
-                ordering();
+                order = 1;  //상대턴인 상태로 오더링을 부르면 내 턴이 되면서 1턴이 된다.
+                //ordering();
             }
         });
 
         builder.setNegativeButton("후공", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                order = 1;  //내턴인채로 오더링을 부르면 상대턴이 되며 1턴이 된다.
-                ordering();
+                order = 2;  //내턴인채로 오더링을 부르면 상대턴이 되며 1턴이 된다.
+                for(int i = 0; i < 4; ++i)
+                    for(int j = 0; j < 3; ++j)
+                        iff[i][j] = (-1)*iff[i][j];
+                //ordering();
             }
         });
         AlertDialog dialog = builder.create();
@@ -272,22 +282,31 @@ public class GameActivity extends Activity {
     {
         if(order == 1){ //내턴에서 상대턴이 될때
             order = 2;
+            if (GreenVictoryChance == 1) {
+                victorydialog = victoryBox();
+                victorydialog.show();
+            }
+
             //Toast.makeText(getApplicationContext(),"상대의 차례입니다.", Toast.LENGTH_SHORT).show();
         }
         else if (order == 2) {  //상대턴에서 내턴이 될때
-            if (victoryChance == 1) victorydialog.show();
+            if (RedVictoryChance == 1) {
+                victorydialog = victoryBox();
+                victorydialog.show();
+            }
+
             //승리조건이 달성된 상태에서 내 턴이 되면 게임 승리.
             order = 1;
             //Toast.makeText(getApplicationContext(),"플레이어의 차례입니다.", Toast.LENGTH_SHORT).show();
         }
         ++turn; //진행턴수 확인가능
-        Toast.makeText(getApplicationContext(),"turn : "+ turn, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),"turn : "+ turn, Toast.LENGTH_SHORT).show();
     }
     private AlertDialog victoryBox() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("승리!");
-        builder.setMessage("?수 승리하셨습니다.");  //턴수를 구하는 방법을 알아보자.
+        builder.setMessage((turn/2+turn%2)+"수 승리하셨습니다.");  //턴수를 구하는 방법을 알아보자.
         //builder.setIcon(android.R.drawable.ic_dialog_alert);  //이미지
         builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
@@ -419,15 +438,18 @@ public class GameActivity extends Activity {
             }
             selectedPiece = 0;
         }
-        //index = -1;
+        selectedPiece = 1;
     }
 
     public void selectEvent() {    //선택했을때 노란 줄 표시하는거.
-
+        if (freedom == 1) { //만약 포로를 누르고 말을 누르러 온거면 자유따윈 없다.
+            freedom = 0;
+            powNum = -1;
+        }
         if (iff[index/3][index%3] == 1) {
-           initSelect();
+            initSelect();
             select[index].setVisibility(View.VISIBLE);
-            selectedPiece = 1;
+            //selectedPiece = 1;    //initselect에 넣음
             setTargetLocation();
             if (board[index/3][index%3] == 1) {
                 selectedPieceValue = 1;
@@ -492,6 +514,72 @@ public class GameActivity extends Activity {
                     }
                 }
             }
+            //여기까지가 빨간 말 타겟선정
+            //여기부터는 녹색말 타겟선정
+            if (board[index/3][index%3] == 6) {
+                selectedPieceValue = 6;
+                if (iff[(index + 3)/3][(index+3)%3] != 1)
+                    target[index + 3].setVisibility(View.VISIBLE);
+            }
+            if (board[index/3][index%3] == 7) {
+                selectedPieceValue = 7;
+                targetLocation[0][0] = 0;
+                targetLocation[0][2] = 0;
+                //다음은 말판에 타겟을 올려줍니다.
+                //index를 통해 현재 위치를 파악, targetlocation이 1인 부분에 맞춰 불가시를 가시로 바꿉니다.
+                for(int i = 0; i< 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (targetLocation[i][j] == 1 && (index+(3*i+j)-4)<12 && 0<=(index+(3*i+j)-4))
+                            if (iff[(index+(3*i+j)-4)/3][(index+(3*i+j)-4)%3] != 1)
+                                target[index+(3*i+j)-4].setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            if (board[index/3][index%3] == 8) {
+                selectedPieceValue = 8;
+                setTargetLocation();
+                targetLocation[0][1] = 0;
+                targetLocation[1][0] = 0;
+                targetLocation[1][2] = 0;
+                targetLocation[2][1] = 0;
+
+                for(int i = 0; i< 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (targetLocation[i][j] == 1 && (index+(3*i+j)-4)<12 && 0<=(index+(3*i+j)-4))
+                            if (iff[(index+(3*i+j)-4)/3][(index+(3*i+j)-4)%3] != 1)
+                                target[index+(3*i+j)-4].setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            if (board[index/3][index%3] == 9) {
+                selectedPieceValue = 9;
+                setTargetLocation();
+                targetLocation[0][0] = 0;
+                targetLocation[0][2] = 0;
+                targetLocation[2][0] = 0;
+                targetLocation[2][2] = 0;
+
+                for(int i = 0; i< 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (targetLocation[i][j] == 1 && (index+(3*i+j)-4)<12 && 0<=(index+(3*i+j)-4))
+                            if (iff[(index+(3*i+j)-4)/3][(index+(3*i+j)-4)%3] != 1)
+                                target[index+(3*i+j)-4].setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            if (board[index/3][index%3] == 10) {
+                selectedPieceValue = 10;
+                setTargetLocation();
+
+                for(int i = 0; i< 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (targetLocation[i][j] == 1 && (index+(3*i+j)-4)<12 && 0<=(index+(3*i+j)-4))
+                            if (iff[(index+(3*i+j)-4)/3][(index+(3*i+j)-4)%3] != 1)
+                                target[index+(3*i+j)-4].setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            //여기까지
         }
     }
     public void setTargetLocation()
@@ -592,27 +680,79 @@ public class GameActivity extends Activity {
 
     public void targetEvent(int num)
     {
-        if (num/3 == 0 && selectedPieceValue == 1) selectedPieceValue = 2;
-        //적 본진에 도달했으므로 후로 변경
-        if (num/3 == 0 && selectedPieceValue == 5) victoryChance = 1;
-        //왕이 적 본진에 도달했으므로 승리 조건 열림, 다음턴에 승리.
+        if (order == 1) {
+            if (num / 3 == 0 && selectedPieceValue == 1) selectedPieceValue = 2;
+            //적 본진에 도달했으므로 후로 변경
+            if (num / 3 == 0 && selectedPieceValue == 5) RedVictoryChance = 1;
+            //왕이 적 본진에 도달했으므로 승리 조건 열림, 다음턴에 승리.
+            if (board[num/3][num%3] == 10) {
+                victorydialog = victoryBox();
+                victorydialog.show();
+            }
+            //왕을 잡았으므로 승리.
+        }
+        if (order == 2) {
+            if (num / 3 == 3 && selectedPieceValue == 6) selectedPieceValue = 7;
+            //적 본진에 도달했으므로 후로 변경
+            if (num / 3 == 3 && selectedPieceValue == 10) GreenVictoryChance = 1;
+            //왕이 적 본진에 도달했으므로 승리 조건 열림, 다음턴에 승리.
+            if (board[num/3][num%3] == 5) {
+                victorydialog = victoryBox();
+                victorydialog.show();
+            }
+            //왕을 잡았으므로 승리.
+        }
 
-        if (board[num/3][num%3] == 10)victorydialog.show();
-        //왕을 잡았으므로 승리.
 
 
-        if (iff[num/3][num%3] == 2) {   //이동한곳에 적이 있을 경우
-            R_POW_LIST[R_POW_CNT] = (board[num/3][num%3])-5;    //포로의 피아를 변환시켜
-            R_POW[R_POW_CNT].setImageDrawable(value[R_POW_LIST[R_POW_CNT]]); //그놈을 내 철창에 철컹철컹
-            ++R_POW_CNT;    //다음 큰집을 준비한다.
+
+        if (iff[num/3][num%3] == -1) {   //이동한곳에 적이 있을 경우
+            if(order == 1) {
+                R_POW_LIST[R_POW_CNT] = (board[num / 3][num % 3]) - 5;    //포로의 피아를 변환시켜
+                if(R_POW_LIST[R_POW_CNT] == 2) --R_POW_LIST[R_POW_CNT];
+                R_POW[R_POW_CNT].setImageDrawable(value[R_POW_LIST[R_POW_CNT]]); //그놈을 내 철창에 철컹철컹
+                ++R_POW_CNT;    //다음 큰집을 준비한다.
+            }
+            else if(order == 2) {
+                G_POW_LIST[G_POW_CNT] = (board[num / 3][num % 3]) + 5;    //포로의 피아를 변환시켜
+                if (G_POW_LIST[G_POW_CNT] == 7) --G_POW_LIST[G_POW_CNT];
+                G_POW[G_POW_CNT].setImageDrawable(value[G_POW_LIST[G_POW_CNT]]); //그놈을 내 철창에 철컹철컹
+                ++G_POW_CNT;    //다음 큰집을 준비한다.
+            }
         }
         board[num/3][num%3] = selectedPieceValue;   //그 자리에 내말
         if (freedom == 0)
             board[index/3][index%3] = 0;                //나 있던 자리는 비워
-        else if (freedom == 1) {
+        else if (freedom != 0) {
+            //R_POW[R_POW_CNT].setImageDrawable(value[0]);
+            if(order == 1) {
+                --R_POW_CNT;
+                R_POW_LIST[powNum] = 0;
+                for (int i = 0; i < R_POW_CNT; ++i) {
+                    if (R_POW_LIST[i] == 0) {
+                        R_POW_LIST[i] = R_POW_LIST[i + 1];
+                        R_POW_LIST[i + 1] = 0;
+                    }
+                }
+//                for (int i = 0; i < 6; ++i)
+//                    R_POW[i].setImageDrawable(value[R_POW_LIST[i]]);
+
+            }
+            else if (order ==2) {
+                --G_POW_CNT;
+                G_POW_LIST[powNum] = 0;
+                for (int i = 0; i < G_POW_CNT; ++i) {
+                    if (G_POW_LIST[i] == 0) {
+                        G_POW_LIST[i] = G_POW_LIST[i + 1];
+                        G_POW_LIST[i + 1] = 0;
+                    }
+                }
+//                for (int i = 0; i < 6; ++i)
+//                    G_POW[i].setImageDrawable(value[G_POW_LIST[i]]);
+
+            }
             freedom = 0;
-            --R_POW_CNT;
-            R_POW_LIST[R_POW_CNT] = 0;
+            powNum = -1;
         }
         for (int i = 0; i < 12 ; ++i)
         {
@@ -623,6 +763,13 @@ public class GameActivity extends Activity {
         //    board[num/3][num%3] = 2;
         setPieces();    //말 다시 뿌리고
         setIff();       //피아식별 다시하고
+
+        if(order == 1) {
+            for(int i = 0; i < 4; ++i)
+                for(int j = 0; j < 3; ++j)
+                    iff[i][j] = (-1)*iff[i][j];
+        }
+
         ordering();     //턴넘기고
         selectedPiece = 0;  //선택한 말이 없다로 다시 변경해줌.
         selectedPieceValue = 0; //선택된 말의 값이 빈칸.
@@ -645,18 +792,74 @@ public class GameActivity extends Activity {
 
     //포로 처분
     public void onR_POW1(View v) {
-        if(R_POW_LIST[0] != 0)  //해당칸에 포로가 있을때! (0)
-        {
-            //타겟을 표시한다.
-            freedom = 1;    //자유로울 놈이 한놈 있다. 이건 타겟이벤트에서 없어짐
-            selectedPieceValue = R_POW_LIST[R_POW_CNT - 1]; //선택된 값에 포로넣어
-            for (int i = 1; i < 3; ++i) {
-                for (int j = 0; j < 3; ++j) {
-                    if (iff[i][j] == 0)
-                        target[3 * i + j].setVisibility(View.VISIBLE);  //아무도 없는 곳에 떨궈줄 수 있다.
-                }
-            }//타겟이 나타났으므로 타겟 이벤트가 동작한다. 찍은 곳의 인덱스를 이용한다.
-        }
+        if(order ==1)
+            powEvent(0);
+
+    }
+    public void onR_POW2(View v) {
+        if(order ==1)
+            powEvent(1);
+    }
+    public void onR_POW3(View v) {
+        if(order ==1)
+            powEvent(2);
+    }
+    public void onR_POW4(View v) {
+        if(order ==1)
+            powEvent(3);
+    }
+    public void onR_POW5(View v) {
+        if(order ==1)
+            powEvent(4);
+    }
+    public void onR_POW6(View v) {
+        if(order ==1)
+            powEvent(5);
+    }
+
+
+    public void onG_POW1(View v) {
+        if(order == 2)
+            powEvent(0);
+
+    }
+    public void onG_POW2(View v) {
+        if(order == 2)
+            powEvent(1);
+    }
+    public void onG_POW3(View v) {
+        if(order == 2)
+            powEvent(2);
+    }
+    public void onG_POW4(View v) {
+        if(order == 2)
+            powEvent(3);
+    }
+    public void onG_POW5(View v) {
+        if(order == 2)
+            powEvent(4);
+    }
+    public void onG_POW6(View v) {
+        if(order == 2)
+            powEvent(5);
+    }
+
+
+    public void powEvent(int num) {
+        initSelect();
+        if(R_POW_LIST[num] != 0 && order == 1)  //해당칸에 포로가 있을때! (0)
+            selectedPieceValue = R_POW_LIST[num]; //선택된 값에 포로넣어
+        if(G_POW_LIST[num] != 0 && order == 2)  //해당칸에 포로가 있을때! (0)
+            selectedPieceValue = G_POW_LIST[num]; //선택된 값에 포로넣어
+
+        freedom = 1;    //자유로울 놈이 한놈 있다. 이건 타겟이벤트에서 없어짐
+        powNum = num;   //어떤 놈을 고기방패로 쓸것인가.
+        for (int i = 1; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                if (iff[i][j] == 0)
+                    target[3 * i + j].setVisibility(View.VISIBLE);  //아무도 없는 곳에 떨궈줄 수 있다.
+            }
+        }//타겟이 나타났으므로 타겟 이벤트가 동작한다. 찍은 곳의 인덱스를 이용한다.
     }
 
 ///////////////상대턴을 해봅시다.

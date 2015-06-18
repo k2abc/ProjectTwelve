@@ -429,7 +429,8 @@
             android:id="@+id/G_POW6"
             android:background="#ff00ffff"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:onClick="onG_POW6" />
 
         <ImageView
             android:layout_width="30dp"
@@ -437,7 +438,8 @@
             android:id="@+id/G_POW5"
             android:background="#ff00ffff"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:onClick="onG_POW5" />
 
         <ImageView
             android:layout_width="30dp"
@@ -445,7 +447,8 @@
             android:id="@+id/G_POW4"
             android:background="#ff00ffff"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:onClick="onG_POW4" />
 
         <ImageView
             android:layout_width="30dp"
@@ -453,7 +456,8 @@
             android:id="@+id/G_POW3"
             android:background="#ff00ffff"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:onClick="onG_POW3" />
 
         <ImageView
             android:layout_width="30dp"
@@ -461,7 +465,8 @@
             android:id="@+id/G_POW2"
             android:background="#ff00ffff"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:onClick="onG_POW2" />
 
         <ImageView
             android:layout_width="30dp"
@@ -469,7 +474,8 @@
             android:id="@+id/G_POW1"
             android:background="#ff00ffff"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:onClick="onG_POW1" />
     </LinearLayout>
 
     <LinearLayout
@@ -496,7 +502,8 @@
             android:background="#ff00ffff"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
-            android:onClick="onR_POW2" />
+            android:onClick="onR_POW2"
+            android:nestedScrollingEnabled="false" />
 
         <ImageView
             android:layout_width="30dp"
@@ -532,7 +539,7 @@
             android:background="#ff00ffff"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
-            android:onClick="onR_POW5" />
+            android:onClick="onR_POW6" />
     </LinearLayout>
 
 

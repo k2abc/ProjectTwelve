@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="게임 규칙"
+        android:id="@+id/textView2"
+        android:layout_marginTop="20dp"
+        android:textSize="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="십이장기는 열두칸의 게임판에서 각각 4개의 말을 가지고 플레이하는 보드 게임입니다. "
+        android:id="@+id/textView3"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="말의 종류는 총 5개로, 자, 후, 상, 장, 왕으로 되어있습니다. 각 말의 이동경로는 말에 표시되어 있으며 한번에 1칸만 이동 가능합니다. 자는 상대 본진에 들어가면 후가 됩니다."
+        android:id="@+id/textView4"
+        android:layout_below="@+id/textView3"
+        android:layout_alignLeft="@+id/textView3"
+        android:layout_alignStart="@+id/textView3" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="게임 중 상대의 말을 잡으면 포로가 됩니다. 포로는 서로의 진영이 아닌 가운데 지역에 놓을 수 있으며 놓는 동작도 턴을 소비합니다. 후는 포로로 잡히면 다시 자가 됩니다."
+        android:id="@+id/textView5"
+        android:layout_below="@+id/textView4"
+        android:layout_alignLeft="@+id/textView4"
+        android:layout_alignStart="@+id/textView4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="상대방의 왕을 잡으면 게임에서 승리합니다. 그 외의 승리조건으로 아군의 왕이 상대의 본진에 들어가서 1턴을 버티면 승리하게 됩니다."
+        android:id="@+id/textView6"
+        android:layout_below="@+id/textView5"
+        android:layout_alignLeft="@+id/textView5"
+        android:layout_alignStart="@+id/textView5" />
+</RelativeLayout>
